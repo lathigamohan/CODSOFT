@@ -1,1 +1,6 @@
-/task 1
+#task -1 Titanic dataset
+import pandas as pd
+df = pd.read_csv('titanic-dataset.csv')
+print(df.info())
+print("number of rows:",df.shape[0])
+print("number of columns:",len(df.columns))
