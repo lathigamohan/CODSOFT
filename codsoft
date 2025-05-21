@@ -6,5 +6,9 @@ LET'S WHAT I DID IN TASK 1?
 now, i checked that passengers traveled in titanic are survived or not 
 step-1:
 first we chech basic info about dataset.
-step-2
-first check how many rows and columns are in it
+step-2:
+first check how many rows and columns are in it.
+step-3:
+ok, we displayed first 10 records of survived people and the visualization of survived and unsurvived passenger in a titanic.
+step-4:
+we visualized how many passengers are in cruise based on their titles like (Mr,Mrs,Miss,etc..), then we visuvalized who are survived based on this.
