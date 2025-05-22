@@ -2,12 +2,14 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.ensemble import RandomForestClassifier
 df = pd.read_csv('titanic-dataset.csv')
 print(df.info())
 print("number of rows:",df.shape[0])
 print("number of columns:",len(df.columns))
 survived=df[df['Survived']==1]
 print("let's see the first 10 survived passengers :",survived.head(10))
+
 plt.figure(figsize=(8, 5))
 ax=sns.countplot(x='Survived', data=df)
 ax.patches[0].set_color('r')
@@ -51,4 +53,23 @@ for p in ax.patches:
         ax.annotate(f'{height}', (p.get_x() + p.get_width() / 2., height), ha='center', va='bottom', fontsize=9)
 
 plt.tight_layout()
+df.drop(['PassengerId', 'Name', 'Ticket', 'Cabin', 'Title'], axis=1, inplace=True)
+df['Age'].fillna(df['Age'].median(), inplace=True)
+df['Embarked'].fillna(df['Embarked'].mode()[0], inplace=True)
+df = pd.get_dummies(df, columns=['Sex', 'Embarked', 'Title_Clean'], drop_first=True)
+from sklearn.model_selection import train_test_split
+
+X = df.drop('Survived', axis=1)
+y = df['Survived']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+print("Accuracy Score:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
 plt.show()
