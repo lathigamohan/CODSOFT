@@ -12,3 +12,5 @@ step-3:
 ok, we displayed first 10 records of survived people and the visualization of survived and unsurvived passenger in a titanic.
 step-4:
 we visualized how many passengers are in cruise based on their titles like (Mr,Mrs,Miss,etc..), then we visuvalized who are survived based on this.
+step-5:
+i drop columns that wont help with prediction.filling missing values and convert categerorical valurs into numeric
