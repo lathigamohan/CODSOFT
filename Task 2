@@ -1,1 +1,49 @@
 #task2
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import time
+import matplotlib.pyplot as plt
+import seaborn as sns
+df = pd.read_csv('IMDb Movies India.csv', encoding='latin1')
+df = df[['Genre', 'Director', 'Actor 1', 'Rating']].dropna().reset_index(drop=True)
+print("After cleaning (only Genre, Director, Actor 1, Rating):")
+print(df.head())
+top_directors = df['Director'].value_counts().nlargest(20).index
+top_actors = df['Actor 1'].value_counts().nlargest(20).index
+df['Genre'] = df['Genre'].apply(lambda x: [g.strip() for g in x.split(',')])
+all_genres = pd.Series([genre for sublist in df['Genre'] for genre in sublist])
+top_genres = all_genres.value_counts().nlargest(20).index
+df['Genre'] = df['Genre'].apply(lambda genres: [g for g in genres if g in top_genres])
+df = df[df['Director'].isin(top_directors) & df['Actor 1'].isin(top_actors)].reset_index(drop=True)
+genre_dummies = df['Genre'].explode().str.get_dummies().groupby(level=0).sum()
+other_dummies = pd.get_dummies(df[['Director', 'Actor 1']], drop_first=True)
+X = pd.concat([genre_dummies, other_dummies], axis=1)
+y = df['Rating']
+print(f"\n Encoded Feature Matrix Shape: {X.shape}")
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+print(f" Train/Test Split:\nX_train: {X_train.shape} | y_train: {y_train.shape}")
+forest_model = RandomForestRegressor(n_estimators=10, random_state=42)
+try:
+    print(" Training model...")
+    start = time.time()
+    forest_model.fit(X_train, y_train)
+    print(f"Model trained in {round(time.time() - start, 2)} seconds!")
+except Exception as e:
+    print("Error during training:", e)
+y_pred = forest_model.predict(X_test)
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+print(f"\n Evaluation Metrics:")
+print(f"Mean Absolute Error (MAE): {mae:.2f}")
+print(f"R-squared Score (R²): {r2:.2f}")
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=y_test, y=y_pred, color='royalblue', s=60, edgecolor='white')
+plt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--', lw=2)
+plt.title(' Actual vs Predicted Ratings', fontsize=14)
+plt.xlabel('Actual Ratings', fontsize=12)
+plt.ylabel('Predicted Ratings', fontsize=12)
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.show()
