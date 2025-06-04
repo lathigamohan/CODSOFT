@@ -1,0 +1,75 @@
+#task -1 Titanic dataset
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.ensemble import RandomForestClassifier
+df = pd.read_csv('titanic-dataset.csv')
+print(df.info())
+print("number of rows:",df.shape[0])
+print("number of columns:",len(df.columns))
+survived=df[df['Survived']==1]
+print("let's see the first 10 survived passengers :",survived.head(10))
+
+plt.figure(figsize=(8, 5))
+ax=sns.countplot(x='Survived', data=df)
+ax.patches[0].set_color('r')
+ax.patches[1].set_color('g')
+plt.title("survival count")
+plt.xticks([0, 1], ['Died', 'Survived'])
+df['Title'] = df['Name'].str.extract(' ([A-Za-z]+)\.', expand=False)
+
+title_counts = df['Title'].value_counts()
+
+plt.figure(figsize=(12, 6))
+bars = plt.bar(title_counts.index, title_counts.values, color=plt.cm.viridis(range(len(title_counts))), label='Passenger Titles')
+for bar in bars:
+    height = bar.get_height()
+    plt.text(
+        bar.get_x() + bar.get_width() / 2,
+        height + 5,
+        f'{int(height)}',
+        ha='center', va='bottom', fontsize=9, fontweight='bold'
+    )
+plt.xticks(rotation=45)
+plt.title("Title Counts from Passenger Names")
+plt.tight_layout()
+
+title_counts = df['Title'].value_counts()
+rare_titles = title_counts[title_counts < 10].index
+
+df['Title_Clean'] = df['Title'].apply(lambda x: 'Others' if x in rare_titles else x)
+
+plt.figure(figsize=(14, 7))
+ax = sns.countplot(x='Title_Clean', hue='Survived', data=df)
+plt.title('Survival Count by Passenger Title (Grouped Rare Titles)')
+plt.xlabel('Title')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.legend(title='Survived', labels=['Died', 'Survived'])
+
+for p in ax.patches:
+    height = p.get_height()
+    if height > 0:
+        ax.annotate(f'{height}', (p.get_x() + p.get_width() / 2., height), ha='center', va='bottom', fontsize=9)
+
+plt.tight_layout()
+df.drop(['PassengerId', 'Name', 'Ticket', 'Cabin', 'Title'], axis=1, inplace=True)
+df['Age'].fillna(df['Age'].median(), inplace=True)
+df['Embarked'].fillna(df['Embarked'].mode()[0], inplace=True)
+df = pd.get_dummies(df, columns=['Sex', 'Embarked', 'Title_Clean'], drop_first=True)
+from sklearn.model_selection import train_test_split
+
+X = df.drop('Survived', axis=1)
+y = df['Survived']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+print("Accuracy Score:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
+plt.show()
