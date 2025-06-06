@@ -1,1 +1,54 @@
 
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from imblearn.over_sampling import SMOTE
+
+# 1. Load data
+df = pd.read_csv('creditcard.csv')
+
+# 2. Plot class distribution
+class_counts = df['Class'].value_counts()
+plt.bar(['Not Fraud', 'Fraud'], class_counts, color=['blue', 'red'])
+plt.title('Original Class Distribution')
+plt.ylabel('Count')
+plt.savefig('class_distribution.png')
+plt.clf()  # Clear figure
+
+# 3. Scale features
+scaler = StandardScaler()
+df['Amount'] = scaler.fit_transform(df[['Amount']])
+df['Time'] = scaler.fit_transform(df[['Time']])
+
+# 4. Prepare data
+X = df.drop('Class', axis=1)
+y = df['Class']
+
+# 5. Split data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# 6. Balance classes
+smote = SMOTE(random_state=42)
+X_train_bal, y_train_bal = smote.fit_resample(X_train, y_train)
+
+# 7. Plot balanced classes
+bal_counts = pd.Series(y_train_bal).value_counts()
+plt.bar(['Not Fraud', 'Fraud'], bal_counts, color=['green', 'orange'])
+plt.title('Balanced Classes After SMOTE')
+plt.ylabel('Count')
+plt.savefig('balanced_classes.png')
+plt.clf()
+
+# 8. Train models
+log_reg = LogisticRegression(max_iter=1000)
+log_reg.fit(X_train_bal, y_train_bal)
+
+random_forest = RandomForestClassifier(n_estimators=50, random_state=42)
+random_forest.fit(X_train_bal, y_train_bal)
+
+print("Program completed. Check saved images.")
