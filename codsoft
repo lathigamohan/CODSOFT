@@ -36,3 +36,34 @@ step -5:
     * and then we made visualizations.
 =======================================================================================================================================
 ======================================================================================================================================
+TASK-5 :
+CREDIT CARD FRAUD DETECTION WITH PYTHON
+
+Step - 1:
+  * Goal: Detect fraud in credit card transactions using ML.
+  * Why: To reduce financial risk and ensure security.
+
+  We load the dataset and plot the class imbalance.
+
+Step - 2:
+  * Preprocess the data.
+  * Scale "Amount" and "Time" for better accuracy.
+
+Step - 3:
+  * Prepare features (X) and target (y).
+  * Split into training and testing sets.
+
+Step - 4:
+  * Use SMOTE to balance the dataset.
+  * Oversample minority (fraud) class.
+
+Step - 5:
+  * Visualize the balanced class distribution.
+
+Step - 6:
+  * Train Logistic Regression and Random Forest models.
+  * Use the balanced data for both.
+
+  Saved plots show class distribution before and after SMOTE.
+============================================================================================================================================================
+============================================================================================================================================================
